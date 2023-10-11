@@ -9,6 +9,8 @@ import Divider from "@mui/material/Divider";
 import {
   Avatar,
   Badge,
+  Button,
+  ButtonGroup,
   CardHeader,
   Chip,
   FormControl,
@@ -16,6 +18,7 @@ import {
   InputAdornment,
   InputLabel,
   OutlinedInput,
+  Select,
   Typography,
 } from "@mui/material";
 import { useUserAuth } from "../../context/userAuthContext";
@@ -141,7 +144,7 @@ export default function Chat() {
   const [selectedPerson, setSelectedPerson] = React.useState([]);
   const [messages, setMessages] = React.useState([]);
   const [message, setMessage] = React.useState("");
-  const [language, setLanguage] = React.useState("hi");
+  const [language, setLanguage] = React.useState("");
   const { open, setOpen } = useDrawer();
 
   const { user } = useUserAuth();
@@ -292,6 +295,12 @@ export default function Chat() {
     }
   };
 
+  const handleLanguageSelect = (selectedLanguage) => {
+    setLanguage(selectedLanguage);
+    // Close the language selection dialog (you can implement this as needed)
+    // For example, you can set a state to control the visibility of the dialog.
+  };
+
   React.useEffect(() => {
     translateMsgFunc(messages);
   }, [messages]);
@@ -306,158 +315,188 @@ export default function Chat() {
     <Box sx={{ display: "flex", height: "100%", position: "relative" }}>
       <CssBaseline />
       <DrawerWithNav handlePersonChat={handlePersonChat} />
-      <Box
-        component="main"
-        sx={(theme) => ({
-          flexGrow: 1,
-          [theme.breakpoints.down("sm")]: {
-            marginLeft: "65px",
-            filter: open ? "blur(50px)" : "blur(0px)",
-          },
-          position: "relative",
-          overflow: "hidden",
-          maxWidth: "1024px",
-          mx: "auto",
-        })}
-        onClick={() => setOpen(false)}
-      >
-        <DrawerHeader />
-        {selectedPerson?.data ? (
-          <Box
-            sx={(theme) => ({
-              pt: 1,
-              [theme.breakpoints.down("lg")]: {
-                px: 2,
-              },
-            })}
-          >
-            <CardHeader
-              avatar={
-                <Avatar
-                  src={selectedPerson?.data?.profile_pictures}
-                  aria-label="recipe"
-                />
-              }
-              sx={{ p: 0, mb: 0.5 }}
-              title={selectedPerson?.data?.displayName}
-            />
-            <Divider />
+      {language === "" ? (
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          height="100vh"
+        >
+          <Box>
+            <Typography variant="h3" component="h1">
+              Please Select the Language
+            </Typography>
+            ;
+            <ButtonGroup
+              orientation="vertical"
+              aria-label="vertical outlined button group"
+            >
+              <Button key="hi" onClick={() => setLanguage("hi")}>
+                Hindi
+              </Button>
+              <Button key="mr" onClick={() => setLanguage("mr")}>
+                Marathi
+              </Button>
+              <Button key="en" onClick={() => setLanguage("en")}>
+                English
+              </Button>
+            </ButtonGroup>
           </Box>
-        ) : null}
-        {selectedPerson?.data ? (
-          <Box
-            sx={{
-              height: "calc(100vh - 197px)",
-              pt: 1.5,
-              display: "flex",
-              flexDirection: "column",
-              overflow: "auto",
-            }}
-            id="boxData"
-          >
+        </Box>
+      ) : (
+        <Box
+          component="main"
+          sx={(theme) => ({
+            flexGrow: 1,
+            [theme.breakpoints.down("sm")]: {
+              marginLeft: "65px",
+              filter: open ? "blur(50px)" : "blur(0px)",
+            },
+            position: "relative",
+            overflow: "hidden",
+            maxWidth: "1024px",
+            mx: "auto",
+          })}
+          onClick={() => setOpen(false)}
+        >
+          <DrawerHeader />
+          {selectedPerson?.data ? (
+            <Box
+              sx={(theme) => ({
+                pt: 1,
+                [theme.breakpoints.down("lg")]: {
+                  px: 2,
+                },
+              })}
+            >
+              <CardHeader
+                avatar={
+                  <Avatar
+                    src={selectedPerson?.data?.profile_pictures}
+                    aria-label="recipe"
+                  />
+                }
+                sx={{ p: 0, mb: 0.5 }}
+                title={selectedPerson?.data?.displayName}
+              />
+              <Divider />
+            </Box>
+          ) : null}
+          {selectedPerson?.data ? (
             <Box
               sx={{
-                flex: 1,
-                px: 3,
+                height: "calc(100vh - 197px)",
+                pt: 1.5,
                 display: "flex",
                 flexDirection: "column",
-                justifyContent: "flex-end",
-                mb: 2,
+                overflow: "auto",
               }}
-              className="msgWrapper"
+              id="boxData"
             >
-              {sortedMessages?.map((msg, i) => {
-                return (
-                  <Box
-                    key={i}
-                    className={
-                      msg?.originalMessage.sender === user.uid
-                        ? "myMessage"
-                        : "notMyMessage"
-                    }
-                    sx={{
-                      alignSelf:
+              <Box
+                sx={{
+                  flex: 1,
+                  px: 3,
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "flex-end",
+                  mb: 2,
+                }}
+                className="msgWrapper"
+              >
+                {sortedMessages?.map((msg, i) => {
+                  return (
+                    <Box
+                      key={i}
+                      className={
                         msg?.originalMessage.sender === user.uid
-                          ? "end"
-                          : "flex-start",
-                      my: 0.3,
-                      maxWidth: "80%",
-                    }}
-                  >
-                    <Chip
-                      color={
-                        msg?.originalMessage.sender === user.uid
-                          ? "primary"
-                          : "secondary"
-                      }
-                      label={
-                        <Box display="flex" flexDirection="column">
-                          <span style={{ fontWeight: "500" }}>
-                            {msg?.translatedMessage[0]?.translatedText}
-                          </span>
-                          <Typography
-                            variant="body2"
-                            color="burlywood"
-                            fontWeight={"bold"}
-                          >
-                            {moment(
-                              msg?.originalMessage.time.toDate().toString()
-                            ).format("D-MMM-YY, h:mm a")}
-                          </Typography>
-                        </Box>
+                          ? "myMessage"
+                          : "notMyMessage"
                       }
                       sx={{
-                        fontSize: "large",
-                        height: "auto",
-                        p: 1,
-                        borderTopRightRadius:
-                          msg.sender === user.uid ? "0px" : "16px",
-                        borderTopLeftRadius:
-                          msg.sender !== user.uid ? "0px" : "16px",
-                        "& span": {
-                          whiteSpace: "normal",
-                        },
+                        alignSelf:
+                          msg?.originalMessage.sender === user.uid
+                            ? "end"
+                            : "flex-start",
+                        my: 0.3,
+                        maxWidth: "80%",
                       }}
-                    />
-                  </Box>
-                );
-              })}
-            </Box>
-          </Box>
-        ) : null}
-        {selectedPerson?.data ? (
-          <form
-            onSubmit={sendMsg}
-            style={{ position: "sticky", bottom: 0, left: 0 }}
-          >
-            <Box
-              display="flex"
-              sx={{ px: 1, alignItems: "center", mb: 0.5, width: "100%" }}
-            >
-              <Box sx={{ mr: 1, flex: 1 }}>
-                <FormControl sx={{ m: 1, width: "100%" }} variant="outlined">
-                  <InputLabel htmlFor="outlined-adornment-password">
-                    Message
-                  </InputLabel>
-                  <OutlinedInput
-                    value={message}
-                    sx={{ width: "100%" }}
-                    onChange={(e) => setMessage(e.target.value)}
-                    endAdornment={
-                      <InputAdornment position="end">
-                        <IconButton type="submit" edge="end">
-                          <TelegramIcon />
-                        </IconButton>
-                      </InputAdornment>
-                    }
-                    label="Message"
-                  />
-                </FormControl>
+                    >
+                      <Chip
+                        color={
+                          msg?.originalMessage.sender === user.uid
+                            ? "primary"
+                            : "secondary"
+                        }
+                        label={
+                          <Box display="flex" flexDirection="column">
+                            <span style={{ fontWeight: "500" }}>
+                              {msg?.translatedMessage[0]?.translatedText}
+                            </span>
+                            <Typography
+                              variant="body2"
+                              color="burlywood"
+                              fontWeight={"bold"}
+                            >
+                              {moment(
+                                msg?.originalMessage.time.toDate().toString()
+                              ).format("D-MMM-YY, h:mm a")}
+                            </Typography>
+                          </Box>
+                        }
+                        sx={{
+                          fontSize: "large",
+                          height: "auto",
+                          p: 1,
+                          borderTopRightRadius:
+                            msg.sender === user.uid ? "0px" : "16px",
+                          borderTopLeftRadius:
+                            msg.sender !== user.uid ? "0px" : "16px",
+                          "& span": {
+                            whiteSpace: "normal",
+                          },
+                        }}
+                      />
+                    </Box>
+                  );
+                })}
               </Box>
             </Box>
-          </form>
-        ) : null}
-      </Box>
+          ) : null}
+          {selectedPerson?.data ? (
+            <form
+              onSubmit={sendMsg}
+              style={{ position: "sticky", bottom: 0, left: 0 }}
+            >
+              <Box
+                display="flex"
+                sx={{ px: 1, alignItems: "center", mb: 0.5, width: "100%" }}
+              >
+                <Box sx={{ mr: 1, flex: 1 }}>
+                  <FormControl sx={{ m: 1, width: "100%" }} variant="outlined">
+                    <InputLabel htmlFor="outlined-adornment-password">
+                      Message
+                    </InputLabel>
+                    <OutlinedInput
+                      value={message}
+                      sx={{ width: "100%" }}
+                      onChange={(e) => setMessage(e.target.value)}
+                      endAdornment={
+                        <InputAdornment position="end">
+                          <IconButton type="submit" edge="end">
+                            <TelegramIcon />
+                          </IconButton>
+                        </InputAdornment>
+                      }
+                      label="Message"
+                    />
+                  </FormControl>
+                </Box>
+              </Box>
+            </form>
+          ) : null}
+        </Box>
+      )}
     </Box>
   );
 }

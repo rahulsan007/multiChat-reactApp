@@ -8,6 +8,10 @@ const port = process.env.PORT || 3004;
 app.use(express.json());
 app.use(cors());
 
+app.get("/", (res, req) => {
+  res.send("Working");
+});
+
 app.get("/translate", async (req, res) => {
   try {
     const texts = Array.isArray(req.query.text)
